@@ -1,11 +1,9 @@
 {
   "name": "com.natuki.booth-import-assistant",
-  "displayName": "BOOTH Import Assistant",
+  "displayName": "natuki53",
   "version": "1.0.0-beta.1",
   "description": "BOOTHライブラリから直接Unityプロジェクトにアセットをインポートするツール。VRChatアバター改変の効率化ツールです。",
-  "author": {
-    "name": "natuki53"
-  },
+  "author": "natuki53",
   "unity": "2022.3",
   "vpmDependencies": {},
   "legacyFolders": {
