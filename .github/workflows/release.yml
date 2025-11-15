@@ -23,7 +23,8 @@ jobs:
       - name: Create Unity Package ZIP
         run: |
           TAG="${{ github.ref_name }}"
-          ZIP_NAME="BOOTH-Import-Assistant-${TAG}.zip"
+          VERSION="${TAG#v}"
+          ZIP_NAME="com.natuki.booth-import-assistant-${VERSION}.zip"
           
           # Assets/BoothImportAssistant/ をzip化
           # ルートディレクトリから実行
@@ -35,8 +36,20 @@ jobs:
             -x "*/BoothBridge/*"
           cd ..
           
+          # SHA256ハッシュを計算
+          if command -v sha256sum &> /dev/null; then
+            ZIP_SHA256=$(sha256sum "${ZIP_NAME}" | cut -d' ' -f1)
+          elif command -v shasum &> /dev/null; then
+            ZIP_SHA256=$(shasum -a 256 "${ZIP_NAME}" | cut -d' ' -f1)
+          else
+            echo "Error: sha256sum or shasum not found"
+            exit 1
+          fi
+          
           echo "package_zip=${ZIP_NAME}" >> $GITHUB_ENV
+          echo "package_zip_sha256=${ZIP_SHA256}" >> $GITHUB_ENV
           echo "Created: ${ZIP_NAME}"
+          echo "SHA256: ${ZIP_SHA256}"
           ls -lh "${ZIP_NAME}"
 
       - name: Create Browser Extension ZIP
@@ -71,24 +84,36 @@ jobs:
       - name: Update VPM JSON
         run: |
           TAG="${{ github.ref_name }}"
-          # vプレフィックスを削除してバージョン番号を取得
           VERSION="${TAG#v}"
           VPM_JSON="docs/vpm.json"
           ZIP_NAME="${{ env.package_zip }}"
+          ZIP_SHA256="${{ env.package_zip_sha256 }}"
+          PACKAGE_JSON="Assets/BoothImportAssistant/package.json"
           
           # jqがインストールされているか確認し、なければインストール
           if ! command -v jq &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y jq
           fi
           
+          # package.jsonを読み込む
+          PACKAGE_DATA=$(cat "$PACKAGE_JSON")
+          
           # 既存のバージョンが存在するか確認
           if jq -e ".packages.\"com.natuki.booth-import-assistant\".versions.\"${VERSION}\"" "$VPM_JSON" > /dev/null 2>&1; then
             echo "Version ${VERSION} already exists in vpm.json"
           else
-            # 新しいバージョンを追加（GitHub ReleaseのZIPファイルURL）
-            VPM_URL="https://github.com/natuki53/Booth-Import-Aassistant/releases/download/${TAG}/${ZIP_NAME}"
-            jq ".packages.\"com.natuki.booth-import-assistant\".versions.\"${VERSION}\" = \"${VPM_URL}\"" "$VPM_JSON" > "${VPM_JSON}.tmp" && mv "${VPM_JSON}.tmp" "$VPM_JSON"
-            echo "Added version ${VERSION} to vpm.json with ZIP URL: ${VPM_URL}"
+            # 新しいバージョンオブジェクトを作成
+            VPM_URL="https://github.com/natuki53/Booth-Import-Aassistant/releases/download/${TAG}/${ZIP_NAME}?"
+            VERSION_OBJECT=$(echo "$PACKAGE_DATA" | jq --arg url "$VPM_URL" --arg sha256 "$ZIP_SHA256" --arg repo "https://natuki53.github.io/Booth-Import-Aassistant/vpm.json" --arg changelog "https://github.com/natuki53/Booth-Import-Aassistant/releases/tag/${TAG}" '. + {
+              "url": $url,
+              "repo": $repo,
+              "zipSHA256": $sha256,
+              "changelogUrl": $changelog
+            }')
+            
+            # vpm.jsonに追加
+            jq ".packages.\"com.natuki.booth-import-assistant\".versions.\"${VERSION}\" = $VERSION_OBJECT" "$VPM_JSON" > "${VPM_JSON}.tmp" && mv "${VPM_JSON}.tmp" "$VPM_JSON"
+            echo "Added version ${VERSION} to vpm.json"
           fi
           
           # 更新後の内容を表示
@@ -108,6 +133,6 @@ jobs:
 
       - name: Output deployment URL
         run: |
-          echo "🚀 GitHub Pages deployed successfully!"
+          echo "GitHub Pages deployed successfully!"
           echo "URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
 
