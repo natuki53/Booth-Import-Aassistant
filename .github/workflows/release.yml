@@ -71,9 +71,10 @@ jobs:
           if jq -e ".packages.\"com.natuki.booth-import-assistant\".versions.\"${VERSION}\"" "$VPM_JSON" > /dev/null 2>&1; then
             echo "Version ${VERSION} already exists in vpm.json"
           else
-            # 新しいバージョンを追加
-            jq ".packages.\"com.natuki.booth-import-assistant\".versions.\"${VERSION}\" = \"https://github.com/natuki53/Booth-Import-Aassistant.git?path=/Assets/BoothImportAssistant\"" "$VPM_JSON" > "${VPM_JSON}.tmp" && mv "${VPM_JSON}.tmp" "$VPM_JSON"
-            echo "Added version ${VERSION} to vpm.json"
+            # 新しいバージョンを追加（タグを含むURL）
+            VPM_URL="https://github.com/natuki53/Booth-Import-Aassistant.git?path=/Assets/BoothImportAssistant#${TAG}"
+            jq ".packages.\"com.natuki.booth-import-assistant\".versions.\"${VERSION}\" = \"${VPM_URL}\"" "$VPM_JSON" > "${VPM_JSON}.tmp" && mv "${VPM_JSON}.tmp" "$VPM_JSON"
+            echo "Added version ${VERSION} to vpm.json with tag ${TAG}"
           fi
           
           # 更新後の内容を表示
