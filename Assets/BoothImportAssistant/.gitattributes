@@ -1,0 +1,42 @@
+# Git改行コード設定（Windows & Mac対応）
+
+# すべてのテキストファイルを自動判定
+* text=auto
+
+# C#ファイルはLF（Unix形式）で統一
+*.cs text eol=lf
+
+# JavaScript/TypeScriptファイルはLFで統一
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+
+# 設定ファイルはLFで統一
+*.md text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# UnityのメタファイルはLFで統一
+*.meta text eol=lf
+
+# バイナリファイルはそのまま
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.zip binary
+*.unitypackage binary
+
+# Node.js関連
+package-lock.json text eol=lf
+
+# Node.js実行ファイル（バイナリ）
+node binary
+node.exe binary
+

@@ -1,0 +1,15 @@
+{
+  "name": "BOOTH Import Assistant",
+  "author": "natuki53",
+  "url": "https://github.com/natuki53/Booth-Import-Aassistant",
+  "packages": {
+    "com.natuki.booth-import-assistant": {
+      "versions": {
+        "1.0.0-beta.1": {
+          "url": "https://github.com/natuki53/Booth-Import-Aassistant.git?path=/Assets/BoothImportAssistant"
+        }
+      }
+    }
+  }
+}
+

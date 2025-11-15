@@ -1,0 +1,10 @@
+{
+  "name": "com.natuki.booth-import-assistant",
+  "displayName": "BOOTH Import Assistant",
+  "version": "1.0.0-beta.1",
+  "vpmDependencies": {},
+  "legacyFolders": {
+    "Assets\\BoothImportAssistant": ""
+  }
+}
+
